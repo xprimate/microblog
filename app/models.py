@@ -6,6 +6,12 @@ from hashlib import md5
 
 from app import login
 
+#followers association table
+followers = db.Table('followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
+)
+
 class User(UserMixin, db.Model):
     #Database schema
     id = db.Column(db.Integer, primary_key=True)
@@ -16,6 +22,37 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+
+    #followers many-to-many relationship
+    followed = db.relationship(
+        'User', secondary=followers,
+        primaryjoin=(followers.c.follower_id == id),
+        secondaryjoin=(followers.c.followed_id == id),
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    
+    #To follow a user
+    def follow(self, user):
+        if not self.is_following(user):
+            self.followed.append(user)
+
+    #To Unfollow a user
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.followed.remove(user)
+
+    #To check following state
+    def is_following(self, user):
+        return self.followed.filter(
+            followers.c.followed_id == user.id).count() > 0
+            
+    # All the post from the followed user and also the users post
+    def followed_posts(self):
+        followed = Post.query.join(
+            followers, (followers.c.followed_id == Post.user_id)).filter(
+                followers.c.follower_id == self.id)
+        own = Post.query.filter_by(user_id=self.id)
+        return followed.union(own).order_by(Post.timestamp.desc())
+    
 
     def __repr__(self):
         return '<User {}'.format(self.username)
