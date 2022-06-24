@@ -62,3 +62,4 @@ NameError: name 'ValidationError' is not defined
 2022-06-16 02:20:10,567 INFO: Microblog startup [in /home/ogbonna/projects/microblog/app/__init__.py:33]
 2022-06-16 05:10:47,861 INFO: Microblog startup [in /home/ogbonna/projects/microblog/app/__init__.py:45]
 2022-06-16 05:11:28,491 INFO: Microblog startup [in /home/ogbonna/projects/microblog/app/__init__.py:45]
+2022-06-17 23:58:33,092 INFO: Microblog startup [in /home/ogbonna/projects/microblog/app/__init__.py:47]
